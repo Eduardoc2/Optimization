@@ -13,3 +13,12 @@ def bisection(f, a, b, tol=1e-6, max_iter=1000):
         iterations += 1
 
     return (a + b) / 2
+
+# Example usage:
+# Define your function
+def func(x):
+    return x**2 - 2
+
+# Call bisection method with initial interval [1, 2]
+root = bisection(func, 1, 2)
+print("Root:", root)
