@@ -1,24 +1,24 @@
-def bisection(f, a, b, tol=1e-6, max_iter=1000):
-    if f(a) * f(b) >= 0:
-        raise ValueError("Function does not change sign over the interval")
-    iterations = 0
-    while (b - a) / 2 > tol and iterations < max_iter:
-        c = (a + b) / 2
-        if f(c) == 0:
-            return c
-        elif f(c) * f(a) < 0:
-            b = c
+from sympy import symbols, diff
+import numpy as np 
+
+def bisection(f,a, b, l):
+    n = np.log(l/(b-a))/np.log(0.5)
+    df=diff(f,x)
+    for k in range(0, int(np.ceil(n))):
+        lambda_k=0.5*(a+b)
+        if df.subs(x,lambda_k) == 0:
+            return lambda_k, a, b, k
+        elif df.subs(x,lambda_k) > 0:
+            b = lambda_k
         else:
-            a = c
-        iterations += 1
+            a = lambda_k
+    lambda_k=0.5*(a+b)
+    return lambda_k ,a ,b, k
 
-    return (a + b) / 2
+x=symbols('x')
+f=x**2+2*x
+x_opt, a, b, k = bisection(f,-3,6,0.2)
 
-# Example usage:
-# Define your function
-def func(x):
-    return x**2 - 2
-
-# Call bisection method with initial interval [1, 2]
-root = bisection(func, 1, 2)
-print("Root:", root)
+print("Final interval: [", a,",",b,"]")
+print("x =",x_opt, "-->","f(x) =",f.subs(x,x_opt))
+print(k, "Iterations")
