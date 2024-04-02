@@ -8,7 +8,7 @@ def df(x):
 
 def bisection(f,df,a, b, l):
     n = np.log(l/(b-a))/np.log(0.5)
-    for k in range(0, int(np.ceil(n))):
+    for k in range(int(np.ceil(n))):
         lambda_k=0.5*(a+b)
         if df(lambda_k) == 0:
             return lambda_k, a, b, k
