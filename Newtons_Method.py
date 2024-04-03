@@ -13,7 +13,7 @@ def newton_optimization(f,df,d2f,x0,tol=1e-6,max_iter=100):
             break
     return k, x[-1]
 
-k, x_min= newton_optimization(f, df, d2f,x0=2)
+k, x_opt= newton_optimization(f, df, d2f,x0=2)
 
-print("x =", x_min, "-->","f(x) =", f(x_min))
+print("x =", x_opt, "-->","f(x) =", f(x_opt))
 print(k, "Iterations")
