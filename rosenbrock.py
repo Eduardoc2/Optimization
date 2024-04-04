@@ -23,13 +23,13 @@ def new_direction(l, d, n):
         if l[j] == 0:
             a[j] = d[j]
         else:
-            a[j] = sum(l[i] * d[i] for i in range(n))
+            a[j] = sum(l[i] * d[i] for i in range(j,n))
         
         if j == 1:
             b[j] = a[j]
         else:
-            b[j] = a[j] - sum(np.dot(a[j], d[i]) * d[i] for i in range(1, j-1))
-        
+            b[j] = a[j] - sum(np.dot(a[j], d[i]) * d[i] for i in range(j-2))
+    
         d[j] = b[j] / np.linalg.norm(b[j])
     
     return d
@@ -42,7 +42,7 @@ def rosenbrock(f,x,tol,f_opt, new_dir):
     for _ in range(100):
         for j in range(n):
             l[j]=f_opt(f,y,d[j],-5,5,0.01)
-            print(_,x,y,d,l[j],"---")
+            #print(_,x,y,d,l[j],"---")
             y += l[j]*d[j]
         if np.linalg.norm(y - x) < tol:
             break
