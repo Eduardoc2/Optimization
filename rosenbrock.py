@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 def golden_section(f, y, d_j, a, b, tol):
     l = a + (1-0.618)*(b-a)
@@ -39,22 +40,45 @@ def rosenbrock(f,x,tol,f_opt, new_dir):
     d=np.eye(n)
     y=np.copy(x)
     l=np.zeros(n)
+    trajectory = [np.copy(x)]
     for _ in range(100):
         for j in range(n):
             l[j]=f_opt(f,y,d[j],-5,5,0.01)
-            #print(_,x,y,d,l[j],"---")
+            #print(_,x,j,y,d,l[j])
             y += l[j]*d[j]
         if np.linalg.norm(y - x) < tol:
             break
         else:
             x=np.copy(y)
         d=new_dir(l,d,n)
-    return y, _
+        trajectory.append(np.copy(x))
+    return y, _, trajectory
 
 def f(x):
     return (x[0]-2)**4 + (x[0]-2*x[1])**2
 
 x0 = np.array([0.00,3.00])
-x_opt, k= rosenbrock(f, x0, 0.005, golden_section,new_direction)
+x_opt, k, trajectory= rosenbrock(f, x0, 0.005, golden_section,new_direction)
 print("x =", x_opt, "-->","f(x) =", f(x_opt))
 print(k, "Iterations")
+
+# Graficar la función de Rosenbrock
+x = np.linspace(-1, 4, 400)
+y = np.linspace(-1, 4, 400)
+X, Y = np.meshgrid(x, y)
+Z = f([X, Y])
+
+plt.figure(figsize=(10, 6))
+plt.contour(X, Y, Z, levels=50, cmap='viridis')
+plt.colorbar(label='f(x)')
+plt.xlabel('x1')
+plt.ylabel('x2')
+plt.title('Contour plot of f(x)')
+plt.grid(True)
+
+trajectory = np.array(trajectory)
+plt.plot(trajectory[:, 0], trajectory[:, 1], 'ro-', label='Trajectory')
+plt.plot(x0[0],x0[1], 'bo', label='Initial Point') 
+plt.plot(x_opt[0], x_opt[1], 'go', label='Optimal Point')
+plt.legend()
+plt.show()
