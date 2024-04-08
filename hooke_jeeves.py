@@ -27,6 +27,7 @@ def hooke_jeeves(f,x,tol,f_opt):
             l=f_opt(f,y,d[j],-5,5,0.1)
             #print(k,x,j,y,d,l)
             y += l*d[j]
+            trajectory.append(np.copy(y))
         if np.linalg.norm(y - x) < tol:
             break
         else:
@@ -34,7 +35,6 @@ def hooke_jeeves(f,x,tol,f_opt):
             x = np.copy(y)
             l = f_opt(f,x,d,-5,5,0.1)
             y = x + l*d
-        trajectory.append(np.copy(x))
     return y, _, trajectory
 
 def f(x):

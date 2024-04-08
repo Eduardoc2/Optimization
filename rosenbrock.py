@@ -46,12 +46,12 @@ def rosenbrock(f,x,tol,f_opt, new_dir):
             l[j]=f_opt(f,y,d[j],-5,5,0.01)
             #print(_,x,j,y,d,l[j])
             y += l[j]*d[j]
+            trajectory.append(np.copy(y))
         if np.linalg.norm(y - x) < tol:
             break
         else:
             x=np.copy(y)
         d=new_dir(l,d,n)
-        trajectory.append(np.copy(x))
     return y, _, trajectory
 
 def f(x):
@@ -62,7 +62,7 @@ x_opt, k, trajectory= rosenbrock(f, x0, 0.005, golden_section,new_direction)
 print("x =", x_opt, "-->","f(x) =", f(x_opt))
 print(k, "Iterations")
 
-# Graficar la función de Rosenbrock
+# Graficar la función 
 x = np.linspace(-1, 4, 400)
 y = np.linspace(-1, 4, 400)
 X, Y = np.meshgrid(x, y)
