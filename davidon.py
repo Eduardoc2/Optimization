@@ -22,17 +22,17 @@ def update_D(D, p, q):
     B = (np.dot(np.dot(D,q),np.dot(q.T,D)))/(np.dot(np.dot(q.T,D),q))
     return D + (A - B)
 
-def steepest_descent(f,x,tol,grad_f,f_opt):
+def davidon(f,x,tol,gradiente,f_opt):
     trajectory = [x.copy()]
     for k in range(10):
         D=np.eye(len(x))
         for j in range(len(x)):
-            grad = grad_f(x) 
+            grad = gradiente(f,x) 
             d = -np.dot(D, grad)
             l = f_opt(f,x,d,-5,5,0.01)
             x_new = x + l*d
             #Para crear un nuevo D
-            q = grad_f(x_new) - grad
+            q = gradiente(f,x_new) - grad
             D = update_D(D, l*d, q)
             trajectory.append(x.copy())
             x = x_new
@@ -44,12 +44,19 @@ def steepest_descent(f,x,tol,grad_f,f_opt):
 def f(x):
     return (x[0] - 2)**4 + (x[0] - 2*x[1])**2
 
-def grad_f(x):
-    return np.array([4*(x[0]-2)**3+2*(x[0]-2*x[1]),2*(x[0]-2*x[1])*(-2)])
+def gradiente(f, x, eps=1e-4):
+    gradient = np.zeros(len(x))
+    for i in range(len(x)):
+        x_plus = x.copy()
+        x_minus = x.copy()
+        x_plus[i] += eps
+        x_minus[i] -= eps
+        gradient[i] = (f(x_plus) - f(x_minus)) / (2 * eps)
+    return gradient
 
 x0 = np.array([0.00,3.00])
 x_init = x0.copy()
-x_opt, k, trajectory= steepest_descent(f, x0, 0.05, grad_f,golden_section)
+x_opt, k, trajectory= davidon(f, x0, 0.05, gradiente,golden_section)
 print("x =", x_opt, "-->","f(x) =", f(x_opt))
 print(k, "Iterations")
 

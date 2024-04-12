@@ -1,28 +1,52 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def f(x, y):
-    return (x - 2)**4 + (x - 2*y)**2
+def f(x):
+    return (x[0] - 2)**4 + (x[0] - 2*x[1])**2
 
-def grad_f(x, y):
-    df_dx = 4 * (x - 2)**3 + 2 * (x - 2*y)
-    df_dy = -4 * (x - 2*y)
-    return np.array([df_dx, df_dy])
+def gradiente(f, x, eps=1e-4):
+    gradient = np.zeros(len(x))
+    for i in range(len(x)):
+        x_plus = x.copy()
+        x_minus = x.copy()
+        x_plus[i] += eps
+        x_minus[i] -= eps
+        gradient[i] = (f(x_plus) - f(x_minus)) / (2 * eps)
+    return gradient
 
-def hessian_f(x, y):
-    d2f_dx2 = 12 * (x - 2)**2 + 2
-    d2f_dy2 = 8
-    d2f_dxdy = -4
-    return np.array([[d2f_dx2, d2f_dxdy], [d2f_dxdy, d2f_dy2]])
+def hessian_f(f, x, eps=1e-4):
+    hess = np.zeros((len(x), len(x)))
+    for i in range(len(x)):
+        for j in range(len(x)):
+            if i == j:
+                x_plus = x.copy()
+                x_minus = x.copy()
+                x_plus[i] += eps
+                x_minus[i] -= eps
+                hess[i, i] = (f(x_plus) - 2 * f(x) + f(x_minus)) / eps**2
+            else:
+                x_plus_plus = x.copy()
+                x_plus_minus = x.copy()
+                x_minus_plus = x.copy()
+                x_minus_minus = x.copy()
+                x_plus_plus[i] += eps
+                x_plus_plus[j] += eps
+                x_plus_minus[i] += eps
+                x_plus_minus[j] -= eps
+                x_minus_plus[i] -= eps
+                x_minus_plus[j] += eps
+                x_minus_minus[i] -= eps
+                x_minus_minus[j] -= eps
+                hess[i, j] = (f(x_plus_plus) - f(x_plus_minus) - f(x_minus_plus) + f(x_minus_minus)) / (4 * eps**2)
+    return hess
 
-def levenberg_marquardt(f, grad_f, hessian_f, x0, tol=1e-6, max_iter=100, lambda_init=0.01, mu=2.0):
+def levenberg_marquardt(f, x0, tol=1e-6, max_iter=100, lambda_init=0.01, mu=2.0):
     x = x0.copy()
     lambda_val = lambda_init
-    iteration = 0
     trajectory = [x.copy()]
     for _ in range(max_iter):
-        grad = grad_f(*x)
-        hess = hessian_f(*x)
+        grad = gradiente(f,x)
+        hess = hessian_f(f,x)
         
         # Calculando el paso de actualización utilizando el método de Levenberg-Marquardt
         step = np.linalg.solve(hess + lambda_val * np.eye(len(x)), -grad)
@@ -38,11 +62,11 @@ def levenberg_marquardt(f, grad_f, hessian_f, x0, tol=1e-6, max_iter=100, lambda
             break
         
         # Evaluando la función en el nuevo punto
-        f_val_new = f(*x_new)
+        f_val_new = f(x_new)
         
         # Calculando la mejora esperada y real
         predicted_improve = grad.dot(step)
-        actual_improve = f(*x) - f_val_new
+        actual_improve = f(x) - f_val_new
         
         # Actualizando el parámetro lambda
         if actual_improve > 0:
@@ -61,16 +85,16 @@ def levenberg_marquardt(f, grad_f, hessian_f, x0, tol=1e-6, max_iter=100, lambda
 x0 = np.array([0.0, 3.0])
 
 # Ejecutando el algoritmo
-x_opt, k ,trajectory = levenberg_marquardt(f, grad_f, hessian_f, x0)
+x_opt, k ,trajectory = levenberg_marquardt(f, x0)
 
-print("x =", x_opt, "-->","f(x) =", f(*x_opt))
+print("x =", x_opt, "-->","f(x) =", f(x_opt))
 print(k, "Iterations")
 
 # Graficar la función
 x = np.linspace(0, 3, 400)
 y = np.linspace(0, 3, 400)
 X, Y = np.meshgrid(x, y)
-Z = f(X, Y)
+Z = f([X, Y])
 
 plt.figure(figsize=(10, 6))
 plt.contour(X, Y, Z, levels=50, cmap='viridis')
