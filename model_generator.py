@@ -12,8 +12,6 @@ def predict_out(a1,a2,b1,b2,x):
 
 
 def cost(theta,input,output):
-    print(output)
-    print(predict_out(*theta,input))
     return np.mean((output-predict_out(*theta,input))**2)
         
 
@@ -38,8 +36,7 @@ def cyclic_coordinate(x0,f_opt,input,output,tol):
     y=np.copy(x0)
     for _ in range(100):
         for j in range(len(x0)):
-            l=f_opt(y,d[j],-5,5,0.1,input,output)
-            print(l*d[j])
+            l=f_opt(y,d[j],-4,4,0.001,input,output)
             y += l*d[j]
         if np.linalg.norm(y - x0) < tol:
             break
@@ -51,8 +48,8 @@ def cyclic_coordinate(x0,f_opt,input,output,tol):
 datos = np.loadtxt('dryer.dat')
 
 # Number of samples (init, final, 1) valor inicial >2 !!!
-n_s=[10,15,1]
-tiempo = np.arange(*n_s)
+n_s=[2,100,1]
+time = np.arange(*n_s)
 
 input = datos[n_s[0]:n_s[1],0]
 output = datos[n_s[0]:n_s[1],1]
@@ -60,20 +57,24 @@ x_prev = datos[n_s[0]-2:n_s[0],0]
 y_prev = datos[n_s[0]-2:n_s[0],1]
 
 
-theta,n_iter=cyclic_coordinate([1,1,1,1],golden_section,input,output,tol=0.05)
+theta,n_iter=cyclic_coordinate([0.5,0.5,0.1,0.1],golden_section,input,output,tol=0.0001)
 
+print(theta,n_iter)
 
+res=[-1.50679337,  0.57994944, -0.04300483,  0.11451339]
+model_out = predict_out(*theta,input)
 
-
+cos=cost(theta,input,output)
+print(cos)
 # Graficar cada columna respecto al tiempo
-'''
-plt.figure(figsize=(8, 6))
-plt.plot(tiempo, datos[:100, 0], label='Columna X')
-plt.plot(tiempo, datos[:100, 1], label='Columna Y')
-plt.xlabel('Tiempo')
-plt.ylabel('Valor')
-plt.title('Gráfico de Columnas respecto al Tiempo')
+
+plt.figure(figsize=(10, 6))
+plt.plot(time, input, '-s',label='Input')
+plt.plot(time, output, '-d',label='Real Output')
+plt.plot(time, model_out, '-o', label='Model Output')
+plt.xlabel('Time')
+plt.ylabel('Value')
+plt.title('Model')
 plt.grid(True)
 plt.legend()
 plt.show()
-'''
