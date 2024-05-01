@@ -13,15 +13,17 @@ def gradient(f, x, eps=1e-4):
         gradient[i] = (f(*x_plus) - f(*x_minus)) / (2 * eps)
     return gradient
 
-def nesterov_momentum(initial_point, max_iter, tol,vel=1,a=0.5):
+def adagrad(initial_point, max_iter, tol):
     theta = np.copy(initial_point)
     path = [initial_point]  
-    learning_rate = 0.1
+    learning_rate = 0.9
+    sigma = 1e-7
+    r = np.zeros_like(theta)
     for k in range(max_iter):
-        theta_prima = theta + a * vel
-        grad= gradient(loss_function,theta_prima) 
-        vel = vel*a - learning_rate*grad
-        theta -= learning_rate * grad
+        grad= gradient(loss_function,theta) 
+        r += grad * grad 
+        delta_theta = - learning_rate/(sigma + np.sqrt(r)) * grad
+        theta += delta_theta
         if np.linalg.norm(grad) < tol:
             return path, k
         path.append(theta)
@@ -30,6 +32,6 @@ def nesterov_momentum(initial_point, max_iter, tol,vel=1,a=0.5):
 initial_point = np.array([0.0, 1.0])  
 max_iter = 100
 tol = 1e-3  
-path, k = nesterov_momentum(initial_point, max_iter, tol)
+path, k = adagrad(initial_point, max_iter, tol)
 print("x =", path[-1], "-->","f(x) =", loss_function(*path[-1]))
 print(k, "Iterations")

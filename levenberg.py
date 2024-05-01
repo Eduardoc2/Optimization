@@ -51,13 +51,11 @@ def levenberg_marquardt(f, x0, tol=1e-6, max_iter=100, lambda_init=0.01, mu=2.0)
         # Calculando el paso de actualización utilizando el método de Levenberg-Marquardt
         step = np.linalg.solve(hess + lambda_val * np.eye(len(x)), -grad)
         
-        # Actualizando los parámetros
         x_new = x + step
         
         # Calculando el cambio relativo para verificar convergencia
         rel_change = np.linalg.norm(step) / np.linalg.norm(x)
         
-        # Si el cambio relativo es menor que la tolerancia, terminar el algoritmo
         if rel_change < tol:
             break
         
@@ -81,10 +79,9 @@ def levenberg_marquardt(f, x0, tol=1e-6, max_iter=100, lambda_init=0.01, mu=2.0)
         x = x_new
     return x, _,trajectory
 
-# Punto inicial
+
 x0 = np.array([0.0, 3.0])
 
-# Ejecutando el algoritmo
 x_opt, k ,trajectory = levenberg_marquardt(f, x0)
 
 print("x =", x_opt, "-->","f(x) =", f(x_opt))
@@ -104,7 +101,6 @@ plt.ylabel('x2')
 plt.title('Contour plot of f(x)')
 plt.grid(True)
 
-# Graficar la trayectoria
 trajectory = np.array(trajectory)
 plt.plot(trajectory[:, 0], trajectory[:, 1], 'ro-', label='Trajectory')
 plt.plot(x0[0],x0[1], 'bo', label='Initial Point') 
